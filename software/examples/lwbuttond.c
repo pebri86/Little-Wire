@@ -18,8 +18,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <syslog.h>
-#include <signal.h>
+#if defined(LINUX)
+  #include <syslog.h>
+  #include <signal.h>
+#endif
 #include <fcntl.h>
 #include "littleWire.h"
 #include "littleWire_util.h"
@@ -60,14 +62,15 @@ void background() {
 	dup2(fd, 1);
 	dup2(fd, 2);
 	close(fd);
-
+#if defined(LINUX)
 	signal(SIGHUP, SIG_IGN);
 	signal(SIGTTOU,SIG_IGN);
 	signal(SIGTTIN,SIG_IGN);
 	signal(SIGTSTP,SIG_IGN);
 
-	if (fork())	exit(0);
 
+	if (fork())	exit(0);
+#endif
 	return;
 }
 
@@ -76,14 +79,19 @@ void background() {
 */
 void run_command (int pin, char * cmd) {
 	int rc;
-	syslog(LOG_INFO,"Button %d pressed. Running command '%s'",pin,cmd);
+  #if defined(LINUX)
+	 syslog(LOG_INFO,"Button %d pressed. Running command '%s'",pin,cmd);
+  #endif
 	if (verbose) printf("Button %d pressed. Running command: '%s'\n",pin,cmd);
+
+  #if defined(LINUX)
 	if (!fork()) {
 		rc=system(cmd);
 		if (verbose) printf("Command '%s' completed (Button %d), rc=%d\n",cmd,pin,rc);
-		syslog(LOG_INFO,"Command '%s' completed (Button %d), rc=%d",cmd,pin,rc);
+		syslog(LOG_INFO,"Command '%s' completed (Button %d), rc=%d",cmd,pin,rc);    
 		exit (0);
-	}
+	}  
+  #endif
 }
 
 #define BUFSIZE 160
@@ -142,9 +150,11 @@ int main(int argc, char *argv[]) {
 	/*
 		initialize syslog
 	*/
-	if (verbose) printf("lwbuttond: Setting up syslog\n");
-	openlog("lwbuttond",LOG_PID,LOG_USER);
-	syslog(LOG_INFO,"Little Wire button daemon version %s starting\n",LWBDVERS);
+  #if defined(LINUX)
+	 if (verbose) printf("lwbuttond: Setting up syslog\n");
+	 openlog("lwbuttond",LOG_PID,LOG_USER);
+	 syslog(LOG_INFO,"Little Wire button daemon version %s starting\n",LWBDVERS);
+  #endif
 
 	/*
 		daemonize, if not debug
@@ -164,7 +174,9 @@ int main(int argc, char *argv[]) {
 
         if(myLittleWire == NULL) {
             perror("lwbuttond: Failed to connect to Little Wire device, retry in 10s");
-            syslog(LOG_ERR,"Failed to connect to Little Wire device, retry in 10s\n");
+            #if defined(LINUX)
+              syslog(LOG_ERR,"Failed to connect to Little Wire device, retry in 10s\n");
+            #endif
             sleep(10);
         } else {
 
@@ -173,11 +185,15 @@ int main(int argc, char *argv[]) {
             if (rc=littleWire_error()) {
                 printf("lwbuttond: Error reading firmware version: '%s' (%d)\n",littleWire_errorName(),rc);
                 snprintf(buf,BUFSIZE,"Error reading firmware version: '%s' (%d)\n",littleWire_errorName(),rc);
-                syslog(LOG_INFO,buf);
+                #if defined(LINUX)
+                  syslog(LOG_INFO,buf);
+                #endif
             }
 
             rc=snprintf(buf,BUFSIZE,"Connected to Little Wire device, firmware version %d.%d\n",((version & 0xF0)>>4),(version&0x0F));
-            syslog(LOG_INFO,buf);
+            #if defined(LINUX)
+              syslog(LOG_INFO,buf);
+            #endif
 
             if (verbose) {
                 printf("lwbuttond: Little Wire firmware version: %d.%d\n",((version & 0xF0)>>4),(version&0x0F));
@@ -213,7 +229,9 @@ int main(int argc, char *argv[]) {
                 }
                 if (rc=littleWire_error()) {
                     fprintf(stderr,"lwbuttond: Error: littleWire error '%s' (%d), retrying\n",littleWire_errorName(),rc);
-                    syslog(LOG_ERR,"Error: littleWire error '%s' (%d), retrying",littleWire_errorName(),rc);
+                    #if defined(LINUX)
+                      syslog(LOG_ERR,"Error: littleWire error '%s' (%d), retrying",littleWire_errorName(),rc);
+                    #endif
                     break;
                 }
                 delay(DEBOUNCE);

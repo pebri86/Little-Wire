@@ -2,7 +2,7 @@
 
 *.dSYM
 *.o
-software/*.exe
+*.exe
 
 software/adc
 software/blink
