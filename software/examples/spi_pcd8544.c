@@ -144,46 +144,46 @@ int main (void)
     for (i=0; i<84; i+=4)
         {
             LCDdrawline(0, 0, i, 47, BLACK);
+            LCDdisplay(lw);
         }
     for (i=0; i<48; i+=4)
         {
             LCDdrawline(0, 0, 83, i, BLACK);
+            LCDdisplay(lw);
         }
-    LCDdisplay(lw);
     delay(2000);
     LCDclear();
     LCDdisplay(lw);
 
     // draw rectangles
     printf("Test: Draw rectangles.\n");
-    for (i=0; i<48; i+=2)
+    for (i=0; i<48/2; i+=2)
         {
-            LCDdrawrect(i, i, 84-i, 48-i, BLACK);
+            LCDdrawrect(i, i, 84-2*i, 48-2*i, BLACK);
+            LCDdisplay(lw);
         }
-    LCDdisplay(lw);
     delay(2000);
     LCDclear();
     LCDdisplay(lw);
 
-    // draw multiple rectangles
-    printf("Test: Draw multiple rectangles.\n");
-    for (i=0; i<48; i++)
+    // draw rounded rectangles
+    printf("Test: Draw rounded rectangles.\n");
+    for (i=0; i<48/2-2; i+=2)
         {
-            // alternate colors for moire effect
-            LCDfillrect(i, i, 84-i, 48-i, i%2);
+            LCDdrawRoundRect(i, i, 84-2*i, 48-2*i, 48/10, BLACK);
+            LCDdisplay(lw);
         }
-    LCDdisplay(lw);
     delay(2000);
     LCDclear();
     LCDdisplay(lw);
 
     // draw mulitple circles
     printf("Test: Draw multiple circles.\n");
-    for (i=0; i<48; i+=2)
+    for (i=0; i<48/2; i+=2)
         {
-            LCDdrawcircle(41, 23, i, BLACK);
+            LCDdrawcircle(84/2, 48/2, i, BLACK);
+            LCDdisplay(lw);
         }
-    LCDdisplay(lw);
     delay(2000);
     LCDclear();
     LCDdisplay(lw);
@@ -192,15 +192,15 @@ int main (void)
     printf("Test: Draw the first ~120 chars.\n");
     for (i=0; i < 64; i++)
         {
-            LCDdrawchar((i % 14) * 6, (i/14) * 8, i);
+            LCDdrawchar((i % 14) * 6, (i/14) * 8, i, BLACK, WHITE, 1);
+            LCDdisplay(lw);
         }
-    LCDdisplay(lw);
     delay(2000);
     for (i=0; i < 64; i++)
         {
-            LCDdrawchar((i % 14) * 6, (i/14) * 8, i + 64);
+            LCDdrawchar((i % 14) * 6, (i/14) * 8, i + 64, BLACK, WHITE, 1);
+            LCDdisplay(lw);
         }
-    LCDdisplay(lw);
     delay(2000);
     LCDclear();
     LCDdisplay(lw);
