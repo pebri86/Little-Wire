@@ -15,6 +15,7 @@ else ifeq ($(shell uname), Darwin)
 	EXE_SUFFIX =
 	OSFLAG = -D LINUX
 else
+	# msys under MinGW
 	USBFLAGS = -I /local/include
 	USBLIBS = -L /local/lib/gcc -lusb
 	EXE_SUFFIX = .exe
@@ -27,7 +28,12 @@ CFLAGS  = $(USBFLAGS) $(LIBS) -I$(INCLUDE) -O -g $(OSFLAG)
 
 LWLIBS = littleWire littleWire_util littleWire_servo opendevice PCD8544
 EXAMPLES  = adc blink blink_ws2812 rgb_cycle_ws2812 fade_ws2812 button servo i2c_blinkM
-EXAMPLES += spi_LTC1448 onewire softPWM hardwarePWM debugConsole spi_pcd8544 spi_pcd8544_2 i2c_nunchuck lwbuttond
+EXAMPLES += spi_LTC1448 onewire softPWM hardwarePWM debugConsole i2c_nunchuck 
+EXAMPLES += spi_pcd8544 spi_pcd8544_2
+EXAMPLES += dht11
+ifeq ($(shell uname), Linux)
+	EXAMPLES += lwbuttond
+endif
 
 .PHONY:	clean library docs
 
