@@ -3,6 +3,9 @@
 *.dSYM
 *.o
 software/*.exe
+library/*~
+example/*~
+*~
 
 software/adc
 software/blink
