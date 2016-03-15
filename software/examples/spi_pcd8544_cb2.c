@@ -46,6 +46,8 @@ int main()
 	LCDclear();
 	LCDdisplay(lw);
 
+	int one = 0;
+
 	for(;;)
 	{
 		LCDclear();
@@ -57,7 +59,7 @@ int main()
 
 		char uptimeInfo[15];
 		unsigned long uptime = sys_info.uptime / 60;
-		sprintf(uptimeInfo, "Uptime %ld min.", uptime);
+		sprintf(uptimeInfo, "Uptime %ld m", uptime);
 
 		char cpuInfo[10];
 		unsigned long avgCpuLoad = ((sys_info.loads[0] / 1000)+(sys_info.loads[1] / 1000)/2);
@@ -66,21 +68,26 @@ int main()
 		char ramInfo[10];
 		unsigned long totalRam = sys_info.freeram / 1024 / 1024;
 		sprintf(ramInfo, "RAM %ld MB", totalRam);
-		
+
 		char ipInfo[15];
-		int fd;
-		struct ifreq ifr;
 
-		fd = socket(AF_INET, SOCK_DGRAM, 0);
-		/* IPv4 IP Address */
-		ifr.ifr_addr.sa_family = AF_INET;
+		if(one == 0)
+		{
+			int fd;
+			struct ifreq ifr;
 
-		strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
-		ioctl(fd, SIOCGIFADDR, &ifr);
+			fd = socket(AF_INET, SOCK_DGRAM, 0);
+			/* IPv4 IP Address */
+			ifr.ifr_addr.sa_family = AF_INET;
 
-		close(fd);
+			strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
+			ioctl(fd, SIOCGIFADDR, &ifr);
 
-		sprintf(ipInfo, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+			close(fd);
+
+			sprintf(ipInfo, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+			one++;
+		}
 
 		LCDdrawstring(0,0, "Cubieboard 2:");
 		LCDdrawline(0, 10, 83, 10, BLACK);
