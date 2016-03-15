@@ -28,6 +28,12 @@ Lesser General Public License for more details.
 #include "littleWire_util.h"
 #include <stdint.h>
 
+typedef enum
+{
+	false,
+	true,
+}boolean;
+
 #define BLACK 1
 #define WHITE 0
 

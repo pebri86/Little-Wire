@@ -26,11 +26,12 @@ LIBS    = $(USBLIBS)
 INCLUDE = library
 CFLAGS  = $(USBFLAGS) $(LIBS) -I$(INCLUDE) -O -g $(OSFLAG)
 
-LWLIBS = littleWire littleWire_util littleWire_servo opendevice PCD8544 mfrc522
+LWLIBS = littleWire littleWire_util littleWire_servo opendevice spi PCD8544 mfrc522
 EXAMPLES  = adc blink blink_ws2812 rgb_cycle_ws2812 fade_ws2812 button servo i2c_blinkM
 EXAMPLES += spi_LTC1448 onewire softPWM hardwarePWM debugConsole i2c_nunchuck
 EXAMPLES += spi_pcd8544 spi_pcd8544_2
 EXAMPLES += dht11
+EXAMPLES += spi_pcd8544_cb2
 ifeq ($(shell uname), Linux)
 	EXAMPLES += lwbuttond
 endif

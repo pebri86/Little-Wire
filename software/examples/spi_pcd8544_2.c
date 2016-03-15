@@ -3,6 +3,7 @@
 #include "littleWire.h"
 #include "littleWire_util.h"
 #include "PCD8544.h"
+#define min(a,b)(a<b?a:b)
 
 #define NUMFLAKES 10
 #define XPOS 0
