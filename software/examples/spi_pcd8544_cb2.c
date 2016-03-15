@@ -19,6 +19,25 @@ int contrast = 50;
 int _dc = PIN3;
 int _rst = PIN4;
 
+void get_ip_addr(int iface, char *buffer)
+{
+	int fd;
+	struct ifreq ifr;
+
+        fd = socket(AF_INET, SOCK_DGRAM, 0);
+        /* IPv4 IP Address */
+        ifr.ifr_addr.sa_family = AF_INET;
+	if(iface == 0)
+        	strncpy(ifr.ifr_name, "eth0", IFNAMSIZ-1);
+	else
+		strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
+        ioctl(fd, SIOCGIFADDR, &ifr);
+
+        close(fd);
+
+        sprintf(buffer, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+}
+
 int main()
 {
 	lw = littleWire_connect();
@@ -61,40 +80,39 @@ int main()
 		unsigned long uptime = sys_info.uptime / 60;
 		sprintf(uptimeInfo, "Uptime %ld m", uptime);
 
-		char cpuInfo[10];
-		unsigned long avgCpuLoad = ((sys_info.loads[0] / 1000)+(sys_info.loads[1] / 1000)/2);
-		sprintf(cpuInfo, "CPU %ld%%", avgCpuLoad);
+		char cpuInfo0[10],cpuInfo1[10];
+		unsigned long avgCpuLoad = sys_info.loads[0] / 1000;
+		sprintf(cpuInfo0, "CPU0 %ld%%", avgCpuLoad);
+		avgCpuLoad = sys_info.loads[1] / 1000;
+                sprintf(cpuInfo1, "CPU1 %ld%%", avgCpuLoad);
 
 		char ramInfo[10];
 		unsigned long totalRam = sys_info.freeram / 1024 / 1024;
 		sprintf(ramInfo, "RAM %ld MB", totalRam);
 
-		char ipInfo[15];
+		char ipInfoWlan[15];
+		char ipInfoEth[15];
 
 		if(one == 0)
 		{
-			int fd;
-			struct ifreq ifr;
-
-			fd = socket(AF_INET, SOCK_DGRAM, 0);
-			/* IPv4 IP Address */
-			ifr.ifr_addr.sa_family = AF_INET;
-
-			strncpy(ifr.ifr_name, "wlan0", IFNAMSIZ-1);
-			ioctl(fd, SIOCGIFADDR, &ifr);
-
-			close(fd);
-
-			sprintf(ipInfo, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+			get_ip_addr(0, ipInfoEth);
+			get_ip_addr(1, ipInfoWlan);
 			one++;
 		}
 
 		LCDdrawstring(0,0, "Cubieboard 2:");
 		LCDdrawline(0, 10, 83, 10, BLACK);
 		LCDdrawstring(0,12, uptimeInfo);
-		LCDdrawstring(0,20, cpuInfo);
-		LCDdrawstring(0,28, ramInfo);
-		LCDdrawstring(0,36, ipInfo);
+		LCDdrawstring(0,20, cpuInfo0);
+		LCDdrawstring(0,28, cpuInfo1);
+		LCDdrawstring(0,36, ramInfo);
+		LCDdisplay(lw);
+		delay(10000);
+		LCDclear();
+		LCDdrawstring(0,0, "WLAN0 :");
+		LCDdrawstring(0,8, ipInfoWlan);
+		LCDdrawstring(0,16, "ETH0 :");
+                LCDdrawstring(0,24, ipInfoEth);
 		LCDdisplay(lw);
 
 		if(lwStatus<0)
