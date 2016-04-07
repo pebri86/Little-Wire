@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	{
     val = dht_read(lw, DHT11);
     if (!val.error) {
-    printf("humidity: %f, temp %f\n", (float)val.humid/10.0, (float)val.temp/10.0);
+    printf("humidity: %.2f %%, temp %.2f C deg.\n", (float)val.humid/10.0, (float)val.temp/10.0);
     } else {
       printf("Error Reading sensor!");
     }
