@@ -27,12 +27,7 @@ Lesser General Public License for more details.
 #include "littleWire.h"
 #include "littleWire_util.h"
 #include <stdint.h>
-
-typedef enum
-{
-	false,
-	true,
-}boolean;
+#include <stdbool.h>
 
 #define BLACK 1
 #define WHITE 0
@@ -98,4 +93,4 @@ void LCDdrawstring(uint8_t x, uint8_t line, char *c);
 void LCDdrawstring_P(uint8_t x, uint8_t line, const char *c);
 void LCDdrawbitmap(uint8_t x, uint8_t y,  const uint8_t *bitmap, uint8_t w, uint8_t h,  uint8_t color);
 void LCDspiwrite(littleWire *lwHandle,uint8_t c);
-void LCDsetTextWrap(boolean w);
+void LCDsetTextWrap(bool w);

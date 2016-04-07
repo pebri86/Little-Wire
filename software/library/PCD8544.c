@@ -53,7 +53,7 @@ Lesser General Public License for more details.
 // LCD port variables
 static uint8_t cursor_x, cursor_y, textsize, textcolor, textbgcolor, _width, _height;
 static int8_t _dc, _rst;
-static boolean wrap, _cp437;
+static bool wrap, _cp437;
 
 // font bitmap
 static unsigned char  font[] =
@@ -1057,7 +1057,7 @@ void LCDfillTriangle(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1, uint8_t x2,
     }
 }
 
-void LCDsetTextWrap(boolean w)
+void LCDsetTextWrap(bool w)
 {
     wrap = w;
 }
