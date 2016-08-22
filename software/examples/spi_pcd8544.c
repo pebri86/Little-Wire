@@ -22,6 +22,17 @@
 	 LCD6 - CS     P15 - GPIO3
 	 LCD7 - RST    P16 - GPIO4
 	 LCD8 - LED    P01 - 3.3V
+	 
+	 Connection with littlewire
+	 LCD pins      	littleWire
+	 LCD1 - GND<---->GND
+	 LCD2 - VCC<---->VCC
+	 LCD3 - CLK<---->PIN2
+	 LCD4 - Din<---->PIN1
+	 LCD5 - D/C<---->PIN3
+	 LCD6 - CS <---->GND
+	 LCD7 - RST<---->PIN4
+	 LCD8 - LED<---->VCC
 
 ================================================================================
 This library is free software; you can redistribute it and/or
