@@ -19,6 +19,8 @@ int contrast = 50;
 int _dc = PIN3;
 int _rst = PIN4;
 
+static unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
+
 void get_ip_addr(int iface, char *buffer)
 {
 	int fd;
@@ -36,6 +38,38 @@ void get_ip_addr(int iface, char *buffer)
         close(fd);
 
         sprintf(buffer, "%s", inet_ntoa(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr));
+}
+
+double getCurrentValue(){
+    double percent;
+    FILE* file;
+    unsigned long long totalUser, totalUserLow, totalSys, totalIdle, total;
+
+    file = fopen("/proc/stat", "r");
+    fscanf(file, "cpu %llu %llu %llu %llu", &totalUser, &totalUserLow,
+        &totalSys, &totalIdle);
+    fclose(file);
+
+    if (totalUser < lastTotalUser || totalUserLow < lastTotalUserLow ||
+        totalSys < lastTotalSys || totalIdle < lastTotalIdle){
+        //Overflow detection. Just skip this value.
+        percent = -1.0;
+    }
+    else{
+        total = (totalUser - lastTotalUser) + (totalUserLow - lastTotalUserLow) +
+            (totalSys - lastTotalSys);
+        percent = total;
+        total += (totalIdle - lastTotalIdle);
+        percent /= total;
+        percent *= 100;
+    }
+
+    lastTotalUser = totalUser;
+    lastTotalUserLow = totalUserLow;
+    lastTotalSys = totalSys;
+    lastTotalIdle = totalIdle;
+
+    return percent;
 }
 
 int main()
@@ -66,6 +100,11 @@ int main()
 	LCDdisplay(lw);
 
 	int one = 0;
+	
+	FILE* file = fopen("/proc/stat", "r");
+    fscanf(file, "cpu %llu %llu %llu %llu", &lastTotalUser, &lastTotalUserLow,
+        &lastTotalSys, &lastTotalIdle);
+    fclose(file);
 
 	for(;;)
 	{
@@ -75,20 +114,22 @@ int main()
 		{
 			printf("sysinfo-Error\n");
 		}
+		
+		char hostname[1024];
+        gethostname(hostname, 1024);
 
 		char uptimeInfo[15];
 		unsigned long uptime = sys_info.uptime / 60;
 		sprintf(uptimeInfo, "Uptime %ld m", uptime);
-
-		char cpuInfo0[10],cpuInfo1[10];
-		unsigned long avgCpuLoad = sys_info.loads[0] / 1000;
-		sprintf(cpuInfo0, "CPU0 %ld%%", avgCpuLoad);
-		avgCpuLoad = sys_info.loads[1] / 1000;
-                sprintf(cpuInfo1, "CPU1 %ld%%", avgCpuLoad);
-
+        
+        int coreCount = sysconf(_SC_NPROCESSORS_ONLN);
+		char cpuInfo[10], cpuCount[2];
+		unsigned long avgCpuLoad = getCurrentValue();
+		sprintf(cpuInfo, "CPU %ld%%", avgCpuLoad);
+        sprintf(cpuCount, "CPU cores %d", coreCount);
 		char ramInfo[10];
-		unsigned long totalRam = sys_info.freeram / 1024 / 1024;
-		sprintf(ramInfo, "RAM %ld MB", totalRam);
+		unsigned long freeRam = sys_info.freeram / 1024 / 1024;
+		sprintf(ramInfo, "RAM %ld MB", freeRam);
 
 		char ipInfoWlan[15];
 		char ipInfoEth[15];
@@ -100,28 +141,29 @@ int main()
 			one++;
 		}
 
-		LCDdrawstring(0,0, "Cubieboard 2:");
+		LCDdrawstring(0,0, hostname);
 		LCDdrawline(0, 10, 83, 10, BLACK);
 		LCDdrawstring(0,12, uptimeInfo);
-		LCDdrawstring(0,20, cpuInfo0);
-		LCDdrawstring(0,28, cpuInfo1);
+		LCDdrawstring(0,20, cpuCount);
+		LCDdrawstring(0,28, cpuInfo);
 		LCDdrawstring(0,36, ramInfo);
 		LCDdisplay(lw);
-		delay(10000);
+		delay(1000);
+		/*
 		LCDclear();
 		LCDdrawstring(0,0, "WLAN0 :");
 		LCDdrawstring(0,8, ipInfoWlan);
 		LCDdrawstring(0,16, "ETH0 :");
                 LCDdrawstring(0,24, ipInfoEth);
 		LCDdisplay(lw);
-
+        */
 		if(lwStatus<0)
 		{
 			printf("> lwStatus: %d\n",lwStatus);
 			printf("> Connection error!\n");
 			return 0;
 		}
-		delay(10000);
+		//delay(10000);
 	}
 	return 0;
 }
