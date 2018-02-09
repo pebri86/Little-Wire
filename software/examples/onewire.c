@@ -192,7 +192,7 @@ int main(void)
 		tempdecimal /= 10;
 
 		//decide whether this is positive, or negative temperature value and either print minus sign, or not
-                printf("> TEMP %c%d.%d deg. C\n", ((temphigh & 0x80) == 0x80) ? '-' : ' ', ((templow & 0xf0) >> 4) | ((temphigh & 0x07) << 4), tempdecimal);
+                printf("> TEMP %c%d.%2d deg. C\n", ((temphigh & 0x80) == 0x80) ? '-' : ' ', ((templow & 0xf0) >> 4) | ((temphigh & 0x07) << 4), tempdecimal);
 		
 		if(lwStatus<0)
 		{
